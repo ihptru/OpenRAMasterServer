@@ -78,7 +78,7 @@
         $schema = 'CREATE TABLE clients (
                     address VARCHAR,
                     client VARCHAR,
-                    ts INTEGER,
+                    ts INTEGER
         )';
         if ($db->query($schema))
             echo "Created table 'clients'.\n";
