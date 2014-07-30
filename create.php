@@ -15,9 +15,7 @@
                     && $db->query('DROP TABLE finished')
                     && $db->query('DROP TABLE map_stats')
                     && $db->query('DROP TABLE activity')
-                    && $db->query('DROP TABLE clients')
-                    && $db->query('DROP TABLE planet')
-                    )
+                    && $db->query('DROP TABLE clients'))
                 echo "Dropped all tables.\n";
         }
 
@@ -81,17 +79,9 @@
                     address VARCHAR,
                     client VARCHAR,
                     ts INTEGER,
-                    ip_addr VARCHAR
         )';
         if ($db->query($schema))
             echo "Created table 'clients'.\n";
-
-        $schema = 'CREATE TABLE planet (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    ip_addr VARCHAR UNIQUE
-        )';
-        if ($db->query($schema))
-            echo "Created table 'planet'.\n";
 
         $db = null;
     }
