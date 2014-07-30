@@ -37,7 +37,7 @@
         foreach ($result as $row)
         {
             $clients_old = $row['players'] + $row['spectators'];
-            if ( ($clients_old != $clients_new || $row['state'] != $gameinfo['state']) && $clients_new != 0 )
+            if ( $clients_old != $clients_new || $row['state'] != $gameinfo['state'] )
             {
                 $game_id = $row['id'];
                 $state_old = $row['state'];
@@ -45,7 +45,7 @@
             $existed = true;
             break;
         }
-        if ($state_old != null || ($state_old == null && !$existed))
+        if ( ($state_old != null || ($state_old == null && !$existed)) && $clients_new != 0)
         {
             $query = $db->prepare("INSERT INTO activity ('game_id', 'ts', 'address', 'game_mod', 'version', 'state_old', 'state_new', 'players')
                             VALUES (:game_id, :ts, :address, :game_mod, :version, :state_old, :state_new, :players)"
