@@ -76,32 +76,20 @@
 
         if (!isset($_REQUEST['clients']))
             return true;
-        if (!isset($_REQUEST['ip_addrs']))
-            return true;
-        $ip_addrs = explode(",", $_REQUEST['ip_addrs']);
-        foreach ($ip_addrs as $ip_addr)
-        {
-            $query = $db->prepare("INSERT OR ABORT INTO planet ('ip_addr') VALUES (:ip_addr)");
-            $query->bindValue(':ip_addr', base64_decode($ip_addr), PDO::PARAM_STR);
-            $query->execute();
-        }
 
         $query = $db->prepare('DELETE FROM clients WHERE address = :addr');
         $query->bindValue(':addr', $gameinfo['address'], PDO::PARAM_STR);
         $query->execute();
         
         $clients = explode(",", $_REQUEST['clients']);
-        $i = 0;
         foreach ($clients as $client)
         {
-            $query = $db->prepare("INSERT INTO clients ('address','client','ts','ip_addr')
+            $query = $db->prepare("INSERT INTO clients ('address','client','ts')
                                 VALUES (:addr, :client, :ts, :ip_addr)");
             $query->bindValue(':addr', $gameinfo['address'], PDO::PARAM_STR);
             $query->bindValue(':client', base64_decode($client), PDO::PARAM_STR);
             $query->bindValue(':ts', time(), PDO::PARAM_INT);
-            $query->bindValue(':ip_addr', base64_decode($ip_addrs[$i]), PDO::PARAM_STR);
             $query->execute();
-            $i+=1;
         }
         return true;
     }
