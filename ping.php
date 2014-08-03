@@ -47,6 +47,12 @@
         }
         if ( ($state_old != null || ($state_old == null && !$existed)) && $clients_new != 0)
         {
+            if ($game_id == null)
+            {
+                $res = $db->query("SELECT max(id) AS max_id FROM servers");
+                foreach ($res as $max_id)
+                    $game_id = $max_id['max_id'] + 1;
+            }
             $query = $db->prepare("INSERT INTO activity ('game_id', 'ts', 'address', 'game_mod', 'version', 'state_old', 'state_new', 'players')
                             VALUES (:game_id, :ts, :address, :game_mod, :version, :state_old, :state_new, :players)"
             );
