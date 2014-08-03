@@ -91,7 +91,7 @@
         foreach ($clients as $client)
         {
             $query = $db->prepare("INSERT INTO clients ('address','client','ts')
-                                VALUES (:addr, :client, :ts, :ip_addr)");
+                                VALUES (:addr, :client, :ts)");
             $query->bindValue(':addr', $gameinfo['address'], PDO::PARAM_STR);
             $query->bindValue(':client', base64_decode($client), PDO::PARAM_STR);
             $query->bindValue(':ts', time(), PDO::PARAM_INT);
