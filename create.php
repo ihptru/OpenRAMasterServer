@@ -14,7 +14,7 @@
             if ($db->query('DROP TABLE servers')
                     && $db->query('DROP TABLE finished')
                     && $db->query('DROP TABLE map_stats')
-                    && $db->query('DROP TABLE activity')
+                    && $db->query('DROP TABLE started')
                     && $db->query('DROP TABLE clients'))
                 echo "Dropped all tables.\n";
         }
@@ -61,19 +61,22 @@
         if ($db->query($schema))
             echo "Created table 'map_stats'.\n";
 
-        $schema = 'CREATE TABLE activity (
+        $schema = 'CREATE TABLE started (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     game_id INTEGER,
-                    ts DATETIME,
+                    name VARCHAR,
                     address VARCHAR,
+                    map VARCHAR,
                     game_mod VARCHAR,
                     version VARCHAR,
-                    state_old INTEGER,
-                    state_new INTEGER,
-                    players INTEGER
+                    players INTEGER,
+                    spectators INTEGER,
+                    bots INTEGER,
+                    protected BOOLEAN DEFAULT 0,
+                    started DATETIME
         )';
         if ($db->query($schema))
-            echo "Created table 'activity'.\n";
+            echo "Created table 'started'.\n";
 
         $schema = 'CREATE TABLE clients (
                     address VARCHAR,

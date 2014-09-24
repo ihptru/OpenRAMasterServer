@@ -20,54 +20,6 @@
     function updatedbinfo($gameinfo) {
         global $db;
 
-        $state_old = null;
-        $existed = false;
-        $game_id = null;
-
-        $version_arr = explode('@', $gameinfo['mods']);
-        $game_mod = array_shift($version_arr);
-        $version = implode('@', $version_arr);
-
-        $query = $db->prepare('SELECT id,state,players,spectators FROM servers WHERE address = :address');
-        $query->bindValue(':address', $gameinfo['address'], PDO::PARAM_STR);
-        $query->execute();
-        $result = $query->fetchAll();
-
-        $clients_new = $gameinfo['players'] + $gameinfo['spectators'];
-        foreach ($result as $row)
-        {
-            $clients_old = $row['players'] + $row['spectators'];
-            if ( $clients_old != $clients_new || $row['state'] != $gameinfo['state'] )
-            {
-                $game_id = $row['id'];
-                $state_old = $row['state'];
-            }
-            $existed = true;
-            break;
-        }
-        if ( ($state_old != null || ($state_old == null && !$existed)) && $clients_new != 0)
-        {
-            if ($game_id == null)
-            {
-                $res = $db->query("SELECT max(id) AS max_id FROM servers");
-                foreach ($res as $max_id)
-                    $game_id = $max_id['max_id'] + 1;
-            }
-            $query = $db->prepare("INSERT INTO activity ('game_id', 'ts', 'address', 'game_mod', 'version', 'state_old', 'state_new', 'players')
-                            VALUES (:game_id, :ts, :address, :game_mod, :version, :state_old, :state_new, :players)"
-            );
-            $query->bindValue(':game_id', $game_id, PDO::PARAM_INT);
-            $query->bindValue(':ts', date('Y-m-d H:i:s'), PDO::PARAM_STR);
-            $query->bindValue(':address', $gameinfo['address'], PDO::PARAM_STR);
-            $query->bindValue(':game_mod', $game_mod, PDO::PARAM_STR);
-            $query->bindValue(':version', $version, PDO::PARAM_STR);
-            $query->bindValue(':state_old', $state_old, PDO::PARAM_INT);
-            $query->bindValue(':state_new', $gameinfo['state'], PDO::PARAM_INT);
-            $query->bindValue(':players', $clients_new, PDO::PARAM_INT);
-            $query->execute();
-            if (DEBUG) $query->debugDumpParams();
-        }
-
         $fields = array_keys($gameinfo);
         $query  = $db->prepare('INSERT OR ABORT INTO `servers` ('.implode(', ', $fields).')
                                 VALUES (:'.implode(', :', $fields).')
@@ -116,6 +68,10 @@
         $addr = $ip.':'.$port;
         $name = urldecode($_REQUEST['name']);
         $started = '';
+
+        $version_arr = explode('@', $_REQUEST['mods']);
+        $game_mod = array_shift($version_arr);
+        $version = implode('@', $version_arr);
         
         if ($_REQUEST['state'] == 2)
         {
@@ -143,9 +99,6 @@
             {
                 if ($row['started'] == '')
                     break;
-                $version_arr = explode('@', $_REQUEST['mods']);
-                $game_mod = array_shift($version_arr);
-                $version = implode('@', $version_arr);
                 $insert = $db->prepare("INSERT INTO finished ('game_id','name','address','map','game_mod','version','protected','started','finished')
                             VALUES (:game_id, :name, :address, :map, :game_mod, :version, :protected, :started, :finished)"
                 );
@@ -176,9 +129,11 @@
                     $insert = $db->prepare('UPDATE map_stats SET played_counter = :played_counter, last_change = :last_change WHERE map = :map');
                 }
                 else
+                {
                     $insert = $db->prepare("INSERT INTO map_stats ('map','played_counter','last_change')
                             VALUES (:map, :played_counter, :last_change)"
                     );
+                }
                 $insert->bindValue(':map', $_REQUEST['map'], PDO::PARAM_STR);
                 $insert->bindValue(':played_counter', $played_counter, PDO::PARAM_INT);
                 $insert->bindValue(':last_change', date('Y-m-d H:i:s'), PDO::PARAM_STR);
