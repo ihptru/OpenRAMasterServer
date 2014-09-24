@@ -1,5 +1,6 @@
 <?php
-     header( 'Content-type: text/plain' );
+    header( 'Content-type: text/plain' );
+    date_default_timezone_set('UTC');
 
     try
     {
