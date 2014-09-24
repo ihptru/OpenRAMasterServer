@@ -82,7 +82,26 @@
             foreach ( $result as $row )
             {
                 if ($row['state'] == 1)
+                {
                     $started = date('Y-m-d H:i:s');
+
+                    $insert = $db->prepare("INSERT INTO started ('game_id','name','address','map','game_mod','version','protected','started','players','spectators','bots')
+                            VALUES (:game_id, :name, :address, :map, :game_mod, :version, :protected, :started, :players, :spectators, :bots)"
+                    );
+                    $insert->bindValue(':game_id', $row['id'], PDO::PARAM_INT);
+                    $insert->bindValue(':name', $_REQUEST['name'], PDO::PARAM_STR);
+                    $insert->bindValue(':address', $addr, PDO::PARAM_STR);
+                    $insert->bindVAlue(':map', $_REQUEST['map'], PDO::PARAM_STR);
+                    $insert->bindValue(':game_mod', $game_mod, PDO::PARAM_STR);
+                    $insert->bindValue(':version', $version, PDO::PARAM_STR);
+                    $insert->bindValue(':protected', isset($_REQUEST['protected']) ? $_REQUEST['protected'] : 0, PDO::PARAM_STR);
+                    $insert->bindValue(':started', $started, PDO::PARAM_STR);
+                    $insert->bindValue(':players', $_REQUEST['players'], PDO::PARAM_INT);
+                    $insert->bindValue(':spectators', isset($_REQUEST['spectators']) ? $_REQUEST['spectators'] : 0, PDO::PARAM_INT);
+                    $insert->bindValue(':bots', isset($_REQUEST['bots']) ? $_REQUEST['bots'] : 0, PDO::PARAM_INT);
+                    $insert->execute();
+                    if (DEBUG) $insert->debugDumpParams();
+                }
                 else
                     $started = $row['started'];
                 break;
